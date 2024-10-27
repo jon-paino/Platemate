@@ -1,0 +1,57 @@
+@startuml usecase
+left to right direction
+
+actor User
+actor RegisteredUser
+actor UnregisteredUser
+
+User <|-- RegisteredUser
+User <|-- UnregisteredUser
+
+
+
+package Platemate <<application>> {
+
+    usecase "Register" as Register
+    usecase "View Workouts" as view
+    usecase "Save Workout" as save
+    usecase "Create Workout" as create
+    usecase "Recommend Equipment" as recommend
+    usecase "Recognize Image" as recognize
+    usecase "Input Image" as input
+
+
+    (recommend) --.> (recognize) : include
+    (create) --.> (recognize) : include
+    (create) <--. (save) : extend
+    (recognize) --.> (input) : include
+}
+
+UnregisteredUser --> Register
+RegisteredUser --> save
+RegisteredUser --> view
+RegisteredUser --> create
+RegisteredUser --> recommend
+
+
+rectangle "OpenCV" as OpenCV
+
+rectangle "GPT API" as GPT
+
+rectangle "Authentication" as Auth
+
+rectangle "Database" as DB
+
+(create) -left-> GPT
+(recommend) --> GPT
+(recognize) -right-> OpenCV
+
+Register -left-> Auth
+view --> Auth
+create --> Auth
+recommend --> Auth
+
+save --> DB
+view --> DB
+
+@enduml

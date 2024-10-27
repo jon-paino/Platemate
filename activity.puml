@@ -1,0 +1,82 @@
+@startuml activity
+
+|RegisteredUser|
+start
+
+
+|Platemate|
+
+repeat
+if (Authenticated?) then (yes)
+else (no)
+    |RegisteredUser|
+    :Prompt to login;
+    |Authentication|
+    :Authenticate;
+
+    |Platemate|
+    if (Authenticated?) then (yes)
+
+    else (no)
+        |RegisteredUser|
+        : Error: Authentication Failed;
+        stop
+    endif
+endif
+
+|Platemate|
+
+
+
+:Wait for user selection;
+if (User Selects Display Workouts?) then (no)
+
+else (yes)
+    |Database|
+    :Retrieve Workouts;
+    |Platemate|
+    :Display Workouts;
+    kill
+endif
+
+
+
+
+|RegisteredUser|
+:Upload images of equipment;
+|OpenCV|
+:Recognize and describe equipment;
+|Platemate|
+
+if (User Selects Create Workout?) then (yes)
+    |GPT API|
+    :Recommend workouts;
+    |Platemate|
+    if (User Selects Save Workout?) then (yes)
+        |Database|
+        :Save workout;
+        |Platemate|
+
+    else (no)
+    endif
+    :Display created workout;
+
+
+else (no)
+endif
+
+if (User Selects Recommend Equipment?) then (yes)
+    |GPT API|
+    :Recommend equipment;
+    |Platemate|
+    :Display recommended equipment;
+else(no)
+endif
+
+|Platemate|
+repeatwhile(User is active?)
+        
+
+|RegisteredUser|
+stop
+@enduml
