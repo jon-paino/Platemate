@@ -1,0 +1,38 @@
+@startuml sequence
+actor RegisteredUser as RU
+participant "Platemate" as PM
+participant "Authentication" as Auth
+participant "Database" as DB
+participant "OpenCV" as CV
+participant "GPT API" as GPT
+
+RU -> PM : login()
+PM -> Auth : authenticate(RU)
+Auth -> DB : verifyCredentials(RU)
+DB --> Auth : credentialsVerified
+Auth --> PM : authenticationSuccess
+
+alt Authentication Failed
+    PM --> RU : error("Authentication Failed")
+else Authentication Succeeded
+    PM -> RU : displayOptions()
+
+    RU -> PM : createWorkout()
+    PM -> GPT : generateWorkoutDescription(prompt)
+    GPT --> PM : workoutDescription
+
+    PM -> DB : saveWorkout(workout)
+    DB --> PM : saveConfirmation
+
+    RU -> PM : uploadEquipmentImage(image)
+    PM -> CV : recognizeImage(image)
+    CV --> PM : equipmentDetails
+    PM -> DB : saveEquipmentDetails(equipmentDetails)
+    DB --> PM : equipmentSaved
+
+    RU -> PM : recommendEquipment()
+    PM -> DB : retrieveEquipmentRecommendations()
+    DB --> PM : equipmentList
+    PM --> RU : display(equipmentList)
+end
+@enduml

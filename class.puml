@@ -1,0 +1,68 @@
+@startuml class
+!define RECTANGLE class
+
+RECTANGLE User {
+}
+
+RECTANGLE RegisteredUser extends User {
+}
+
+RECTANGLE UnregisteredUser extends User {
+}
+
+RECTANGLE Platemate {
+    +createWorkout()
+    +viewWorkouts()
+    +recommendEquipment()
+    +registerUser()
+}
+
+RECTANGLE Workout {
+    +id : int
+    +name : String
+    +description : String
+    +saveWorkout()
+}
+
+RECTANGLE Equipment {
+    +id : int
+    +name : String
+    +image : Image
+    +recommendEquipment()
+    +recognizeEquipmentImage()
+}
+
+RECTANGLE Authentication {
+    +authenticate(user : User) : boolean
+}
+
+RECTANGLE Database {
+    +save(data : Object)
+    +retrieve(id : int) : Object
+}
+
+RECTANGLE OpenCV {
+    +recognizeImage(image : Image) : String
+}
+
+RECTANGLE GPT_API {
+    +generateWorkoutDescription(prompt : String) : String
+}
+
+User "1" <-- "0..1" RegisteredUser : extends
+User "1" <-- "0..1" UnregisteredUser : extends
+
+RegisteredUser --> Platemate : interacts with
+Platemate --> Workout : creates and views
+Platemate --> Equipment : recommends
+Platemate --> Authentication : uses
+Platemate --> Database : stores and retrieves data
+Platemate --> GPT_API : accesses for recommendations
+Platemate --> OpenCV : processes images
+
+Workout --> Database : save/retrieve workouts
+Equipment --> Database : save/retrieve equipment data
+OpenCV --> Equipment : provides image recognition
+Authentication --> Database : verifies credentials
+
+@enduml
