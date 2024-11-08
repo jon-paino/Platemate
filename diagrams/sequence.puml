@@ -20,15 +20,16 @@ else Authentication Succeeded
     RU -> PM : createWorkout()
     PM -> GPT : generateWorkoutDescription(prompt)
     GPT --> PM : workoutDescription
-
     PM -> DB : saveWorkout(workout)
     DB --> PM : saveConfirmation
+    PM --> RU : display(workoutDescription)
 
     RU -> PM : uploadEquipmentImage(image)
     PM -> CV : recognizeImage(image)
     CV --> PM : equipmentDetails
     PM -> DB : saveEquipmentDetails(equipmentDetails)
     DB --> PM : equipmentSaved
+    PM --> RU : display(equipmentDetails)
 
     RU -> PM : recommendEquipment()
     PM -> DB : retrieveEquipmentRecommendations()

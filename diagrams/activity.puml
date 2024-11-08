@@ -36,7 +36,6 @@ else (yes)
     :Retrieve Workouts;
     |Platemate|
     :Display Workouts;
-    kill
 endif
 
 

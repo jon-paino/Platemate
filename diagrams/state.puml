@@ -1,0 +1,25 @@
+@startuml
+[*] --> Idle : Start
+
+Idle --> Authenticating : login()
+Authenticating --> Authenticated : authenticationSuccess
+Authenticating --> Error : authenticationFailed
+Error --> [*]
+
+Authenticated --> SelectingAction : displayOptions()
+SelectingAction --> ViewingWorkouts : displayWorkouts()
+ViewingWorkouts --> SelectingAction : back()
+
+SelectingAction --> CreatingWorkout : createWorkout()
+CreatingWorkout --> GeneratingDescription : call(GPT API)
+GeneratingDescription --> SavingWorkout : saveWorkout()
+SavingWorkout --> SelectingAction : saveComplete()
+
+SelectingAction --> UploadingImage : uploadEquipmentImage()
+UploadingImage --> RecognizingEquipment : call(OpenCV)
+RecognizingEquipment --> RecommendingEquipment : call(GPT API)
+RecommendingEquipment --> SelectingAction : displayRecommendations()
+
+SelectingAction --> Logout : logout()
+Logout --> [*]
+@enduml

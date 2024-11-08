@@ -1,14 +1,12 @@
 @startuml class
 !define RECTANGLE class
 
-RECTANGLE User {
-}
+RECTANGLE User {}
+RECTANGLE RegisteredUser {}
+RECTANGLE UnregisteredUser {}
 
-RECTANGLE RegisteredUser extends User {
-}
-
-RECTANGLE UnregisteredUser extends User {
-}
+User <|-- RegisteredUser
+User <|-- UnregisteredUser
 
 RECTANGLE Platemate {
     +createWorkout()
@@ -21,14 +19,12 @@ RECTANGLE Workout {
     +id : int
     +name : String
     +description : String
-    +saveWorkout()
 }
 
 RECTANGLE Equipment {
     +id : int
     +name : String
     +image : Image
-    +recommendEquipment()
     +recognizeEquipmentImage()
 }
 
@@ -48,9 +44,6 @@ RECTANGLE OpenCV {
 RECTANGLE GPT_API {
     +generateWorkoutDescription(prompt : String) : String
 }
-
-User "1" <-- "0..1" RegisteredUser : extends
-User "1" <-- "0..1" UnregisteredUser : extends
 
 RegisteredUser --> Platemate : interacts with
 Platemate --> Workout : creates and views

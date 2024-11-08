@@ -1,0 +1,52 @@
+@startuml
+package "Platemate Application (Monolith)" {
+  
+  package "Frontend (MVC)" {
+    [Controller]
+    [View]
+    [Model]
+  }
+
+  package "Backend (Layered Architecture)" {
+    package "Presentation Layer" {
+      [Platemate]
+    }
+    package "Business Logic Layer" {
+      [WorkoutService]
+      [AuthenticationService]
+      [EquipmentService]
+    }
+    package "Data Access Layer" {
+      [Database]
+    }
+    package "External Services (Adapter Pattern)" {
+      [GPT API]
+      [OpenCV]
+    }
+  }
+
+  [Frontend (MVC)] -down-> [Platemate] : interacts with
+
+  [Platemate] -right-> [AuthenticationService] : verifies user
+  [Platemate] --> [WorkoutService] : manages workouts
+  [Platemate] --> [EquipmentService] : handles equipment
+  
+  [AuthenticationService] --> [Database] : stores/retrieves credentials
+  [WorkoutService] --> [Database] : stores/retrieves workout data
+  [EquipmentService] --> [Database] : stores/retrieves equipment data
+
+  [EquipmentService] --> [OpenCV] : processes equipment images
+  [WorkoutService] --> [GPT API] : generates workout descriptions
+
+  note right of [Frontend (MVC)]
+    MVC Pattern: organizes UI logic
+  end note
+  note right of [Platemate]
+    Layered Architecture: separates presentation, business, and data layers
+  end note
+  note left of [GPT API]
+    Adapter Pattern: connects external services
+  end note
+}
+
+@enduml
