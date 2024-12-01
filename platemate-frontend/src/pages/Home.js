@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Card, Typography, Button, Upload, Row, Col } from "antd";
 import { UploadOutlined, ArrowRightOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
@@ -6,10 +6,42 @@ import { Link } from "react-router-dom";
 const { Title, Text } = Typography;
 
 function Home() {
-  const handleImageUpload = (info) => {
-    if (info.file.status === "done") {
-      alert(`Image uploaded successfully: ${info.file.name}`);
-    }
+  const [recommendations, setRecommendations] = useState("");
+  const handleImageUpload = (options) => {
+    const { file, onSuccess, onError } = options;
+  
+    console.log("Image upload initiated.");
+    console.log("File information:", file);
+  
+    // Create a FormData object
+    const formData = new FormData();
+    formData.append("image", file);
+    console.log("FormData created and file appended.");
+  
+    // Send the image to the backend
+    fetch("http://localhost:5000/upload-image", {
+      method: "POST",
+      body: formData,
+    })
+      .then((response) => {
+        console.log("Backend responded with status:", response.status);
+        if (response.ok) {
+          return response.json();
+        } else {
+          throw new Error(`Upload failed with status ${response.status}`);
+        }
+      })
+      .then((data) => {
+        console.log("Backend response data:", data);
+        onSuccess(data, file); // Notify Upload component of success
+        // Update state with recommendations
+        setRecommendations(data.recommendations);
+        console.log("Recommendations updated:", data.recommendations);
+      })
+      .catch((error) => {
+        console.error("Error uploading image:", error);
+        onError(error); // Notify Upload component of failure
+      });
   };
 
   return (
@@ -32,7 +64,7 @@ function Home() {
             actions={[
               <Upload
                 listType="picture"
-                onChange={handleImageUpload}
+                customRequest={handleImageUpload}
                 showUploadList={true}
               >
                 <Button icon={<UploadOutlined />}>Choose Images</Button>
@@ -65,6 +97,12 @@ function Home() {
               goals.
             </Text>
           </Card>
+          {recommendations && (
+            <Card style={{ marginTop: "20px" }}>
+              <Title level={3}>Workout Recommendations</Title>
+              <Text>{recommendations}</Text>
+            </Card>
+          )}
         </Col>
 
         <Col xs={24} sm={12} lg={8}>

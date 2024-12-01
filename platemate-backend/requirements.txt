@@ -4,3 +4,5 @@ Flask-SQLAlchemy
 Flask-Bcrypt
 Flask-JWT-Extended
 python-dotenv
+google-cloud-vision
+openai
