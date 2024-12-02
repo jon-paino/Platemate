@@ -6,7 +6,7 @@ import useUserContext from "../contexts/UserContext";
 const { Header } = Layout;
 
 function Navbar() {
-  const { loggedIn, logout } = useUserContext();
+  const { loggedIn, logout, userMetadata } = useUserContext();
   const location = useLocation();
 
   // Determine the current selected key based on the current path
@@ -22,6 +22,9 @@ function Navbar() {
         return "1";
     }
   };
+
+  // Get the user's name from userMetadata
+  const userName = userMetadata?.name || "Profile";
 
   return (
     <Header
@@ -43,8 +46,8 @@ function Navbar() {
         theme="dark"
         mode="horizontal"
         defaultSelectedKeys={["1"]}
-        style={{ flexGrow: 1 }}
         selectedKeys={[selectedKey()]}
+        style={{ alignContent: "left" }}
       >
         <Menu.Item key="1">
           <Link to="/">Home</Link>
@@ -52,8 +55,9 @@ function Navbar() {
         <Menu.Item key="2">
           <Link to="/recommendations">Recommendations</Link>
         </Menu.Item>
+
         <Menu.Item key="3">
-          <Link to="/profile">Profile</Link>
+          <Link to="/profile">{userName}</Link>
         </Menu.Item>
         <Menu.Item key="4">
           <Button type="link" onClick={logout} style={{ color: "white" }}>
