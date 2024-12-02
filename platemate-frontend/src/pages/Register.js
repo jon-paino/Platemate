@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Button, Input, Typography } from "antd";
+import { Button, Input, Typography, Layout } from "antd";
 import useUserContext from "../contexts/UserContext";
 
-const { Title } = Typography;
+const { Title, Text } = Typography;
+const { Header, Footer } = Layout;
 
 export default function Register() {
   const { createAccount } = useUserContext();
@@ -23,7 +24,28 @@ export default function Register() {
   };
 
   return (
-    <div style={{ maxWidth: "400px", margin: "50px auto", textAlign: "center" }}>
+    <div>
+      <Header
+        style={{
+          width: "100%",
+          zIndex: 1000,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+        }}
+      >
+        <div
+          className="logo"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            paddingRight: "30px",
+          }}
+        >
+          <h1 style={{ color: "white", margin: 0 }}>Platemate</h1>
+        </div>
+      </Header>
+    <div style={{ maxWidth: "400px", margin: "50px auto", textAlign: "center", paddingTop: "80px" }}>
       <Title level={2}>Register</Title>
       {error && <p style={{ color: "red" }}>{error}</p>}
       <Input
@@ -55,5 +77,19 @@ export default function Register() {
         </Link>
       </div>
     </div>
+    <Footer
+        style={{
+          position: "fixed",
+          bottom: 0,
+          width: "100%",
+          textAlign: "center",
+          backgroundColor: "#333",
+          color: "#fff",
+          padding: "10px",
+        }}
+      >
+        <Text style={{ color: "#fff" }}>© 2024 Platemate.</Text>
+      </Footer>
+  </div>
   );
 }

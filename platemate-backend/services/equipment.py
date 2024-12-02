@@ -100,22 +100,42 @@ def get_additional_equipment_recommendations(current_equipment):
     client = OpenAI()
 
     prompt = f"""
-    The user currently owns the following workout equipment: {', '.join(current_equipment)}.
-    Recommend additional equipment they should consider purchasing to create a more comprehensive workout setup.
-    For each recommendation, include:
-    - Equipment name
-    - Purpose of the equipment
+    You are a highly skilled fitness equipment expert. The user currently owns the following workout equipment: {', '.join(current_equipment)}.
+    Recommend 2 additional pieces of equipment they should consider purchasing to enhance their workout setup. Ensure your recommendations are tailored to complement the existing equipment.
+    For each recommendation, provide:
+    - Equipment Name: The name of the recommended equipment.
+    - Purpose: A detailed explanation of its purpose and how it can improve the user's workouts.
+    - Complementary Use: Explain how this equipment complements the existing equipment.
+    - Price: Provide an estimated USD price range for the equipment.
+
+    Return the 2 recommendations as a JSON list with the following structure:
+    [
+        {{
+            "equipment_name": "Name of the equipment",
+            "purpose": "Explanation of the purpose",
+            "complementary_use": "Explanation of how it complements the existing equipment"
+            "price": "Price range in USD"
+        }}
+    ]
     """
 
     try:
         response = client.chat.completions.create(
             model="gpt-4",
             messages=[
-                {"role": "system", "content": "You are a fitness equipment expert."},
+                {"role": "system", "content": "You are a fitness equipment expert providing detailed and actionable recommendations."},
                 {"role": "user", "content": prompt},
             ],
         )
-        recommendations = response.choices[0].message.content.strip()
+
+        # Parse and validate JSON response
+        raw_content = response.choices[0].message.content.strip()
+        cleaned_content = re.sub(r'```json|```', '', raw_content).strip()  # Remove markdown formatting if present
+        recommendations = json.loads(cleaned_content)
+
         return recommendations
+    
+    except json.JSONDecodeError as json_error:
+        raise RuntimeError(f"Invalid JSON response: {raw_content}") from json_error
     except Exception as e:
-        raise RuntimeError(f"Error generating recommendations: {str(e)}")
+        raise RuntimeError(f"Error generating recommendations: {str(e)}") from e

@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 import os
 import logging
-from services.equipment import get_equipment_info_from_images
+from services.equipment import get_equipment_info_from_images, get_additional_equipment_recommendations
 import tempfile
 from dotenv import load_dotenv
 

@@ -104,7 +104,7 @@ export async function saveToSupabase (equipmentDetails, workouts) {
         }
 
         console.log("Data saved successfully to Supabase!");
-        
+
     } catch (error) {
         console.error("Error saving data to Supabase:", error);
         throw error;
@@ -292,6 +292,8 @@ export async function fetchEquipmentRecommendations() {
         }
 
         const data = await response.json();
+        // console.log("Data:", data);
+        console.log("Recommendations:", data.recommendations);
         return data.recommendations;
     } catch (error) {
         console.error("Error fetching equipment recommendations:", error);

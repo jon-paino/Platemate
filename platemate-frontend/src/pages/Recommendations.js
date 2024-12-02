@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Card, Typography, Row, Col, Button, message, Modal } from "antd";
+import { Card, Typography, Row, Col, Button, message, Modal, Divider } from "antd";
+import { CloseOutlined } from "@ant-design/icons";
 import {
   fetchEquipment,
   fetchWorkouts,
@@ -13,7 +14,7 @@ const { Title, Text } = Typography;
 function Recommendations() {
   const [equipmentInfo, setEquipmentInfo] = useState([]);
   const [workouts, setWorkouts] = useState([]);
-  const [recommendations, setRecommendations] = useState(null); // Store recommendations
+  const [recommendations, setRecommendations] = useState([]); // Store recommendations
   const [loading, setLoading] = useState(false); // Loading state for recommendations
 
   useEffect(() => {
@@ -79,7 +80,31 @@ function Recommendations() {
             </Button>,
           ]}
         >
-          <Text>{recommendations}</Text>
+          <Row gutter={[16, 16]}>
+          {recommendations.map((item, index) => (
+            <Col xs={24} sm={24} md={24} key={index}>
+              <Card
+                title={item.equipment_name}
+                bordered={true}
+                style={{ height: "100%" }}
+              >
+                <Text>
+                  <strong>Price:</strong> {item.price}
+                </Text>
+                <br />
+                <br />
+                <Text>
+                  <strong>Purpose:</strong> {item.purpose}
+                </Text>
+                <br />
+                <br />
+                <Text>
+                  <strong>Complements Existing Equipment:</strong> {item.complementary_use}
+                </Text>
+              </Card>
+            </Col>
+          ))}
+          </Row>
         </Modal>
       )}
 
@@ -97,9 +122,8 @@ function Recommendations() {
                         type="text"
                         danger
                         onClick={() => deleteEquipment(item.id)}
-                      >
-                        X
-                      </Button>
+                        icon={<CloseOutlined />}
+                      />
                     }
                   >
                     <Title level={4}>{item.equipment_name}</Title>
@@ -128,9 +152,8 @@ function Recommendations() {
                         type="text"
                         danger
                         onClick={() => deleteWorkout(item.id)}
-                      >
-                        X
-                      </Button>
+                        icon={<CloseOutlined />}
+                      />
                     }
                   >
                     <Title level={4}>{item.workout_name}</Title>
