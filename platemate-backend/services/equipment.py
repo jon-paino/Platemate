@@ -33,14 +33,14 @@ def get_equipment_info_from_images(image_paths):
             ### Step 1: Equipment Identification
             For each image, provide the following details:
             - `equipment_name`: The name of the equipment.
-            - `description`: A detailed description of its purpose and features.
+            - `equipment_description`: A detailed description of its purpose and features.
 
             ### Step 2: Workout Plan Creation
             Using all the identified equipment, generate a comprehensive workout plan. For each workout, provide:
             - `workout_name`: The name of the workout.
             - `muscles_targeted`: A list of muscles targeted by the workout.
             - `equipment_required`: The list of equipment needed to perform the workout.
-            - `description`: A very brief description of how to perform workout.
+            - `workout_description`: A very brief description of how to perform workout.
 
             ### Final Output Format
             Return the result as a single JSON object with the following structure:
@@ -48,7 +48,7 @@ def get_equipment_info_from_images(image_paths):
                 "equipment_details": [
                     {
                         "equipment_name": "name of the equipment",
-                        "description": "detailed description of the equipment"
+                        "equipment_description": "detailed description of the equipment"
                     }
                 ],
                 "workouts": [
@@ -56,7 +56,7 @@ def get_equipment_info_from_images(image_paths):
                         "workout_name": "Name of the workout",
                         "muscles_targeted": ["list", "of", "muscles"],
                         "equipment_required": ["list of required equipment"],
-                        "description": "Very brief description of the workout"
+                        "workout_description": "Very brief description of the workout"
                     }
                 ]
             }

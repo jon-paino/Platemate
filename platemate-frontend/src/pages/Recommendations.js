@@ -1,80 +1,105 @@
-import React from "react";
-import { Card, Button, Typography, List, Row, Col } from "antd";
-import { ReloadOutlined } from "@ant-design/icons";
+import React, { useState, useEffect } from "react";
+import { Card, Typography, Row, Col } from "antd";
+import { fetchEquipment, fetchWorkouts } from "../services/supabase";
 
 const { Title, Text } = Typography;
 
 function Recommendations() {
-  // Placeholder workout recommendations data
-  const recommendations = [
-    {
-      id: 1,
-      title: "Full Body Workout",
-      description:
-        "A balanced workout routine targeting all major muscle groups.",
-      exercises: ["Push-Ups", "Squats", "Burpees", "Plank"],
-    },
-    {
-      id: 2,
-      title: "Upper Body Strength",
-      description:
-        "Focus on building upper body strength with these exercises.",
-      exercises: ["Pull-Ups", "Bench Press", "Bicep Curls", "Tricep Dips"],
-    },
-    {
-      id: 3,
-      title: "Core Workout",
-      description: "A routine designed to strengthen your core muscles.",
-      exercises: [
-        "Sit-Ups",
-        "Leg Raises",
-        "Mountain Climbers",
-        "Russian Twists",
-      ],
-    },
-  ];
+  const [equipmentInfo, setEquipmentInfo] = useState([]);
+  const [workouts, setWorkouts] = useState([]);
 
-  const handleFetchRecommendations = () => {
-    // Placeholder for fetching new recommendations
-    alert("Fetching new recommendations...");
-  };
+  useEffect(() => {
+    const loadUserData = async () => {
+      const equipment = await fetchEquipment();
+      const workouts = await fetchWorkouts();
+      setEquipmentInfo(equipment);
+      setWorkouts(workouts);
+    };
+  
+    loadUserData();
+  }, []);
+
 
   return (
     <div style={{ padding: "20px", maxWidth: "1200px", margin: "0 auto" }}>
-      <Title level={2} style={{ textAlign: "center", marginBottom: "20px" }}>
-        Personalized Workout Recommendations
-      </Title>
+      {/* Welcome Card */}
+      <Card style={{ marginBottom: "20px", textAlign: "center" }}>
+        <Title level={1}>Personalized Workouts</Title>
+        <Text>
+          These are the recommendations that you have received based on the equipment you have uploaded.
+        </Text>
+      </Card>
 
-      <div style={{ textAlign: "center", marginBottom: "20px" }}>
-        <Button
-          type="primary"
-          icon={<ReloadOutlined />}
-          onClick={handleFetchRecommendations}
-        >
-          Fetch New Recommendations
-        </Button>
-      </div>
+      <Card style={{ marginBottom: "20px", textAlign: "left" }}>
+        {/* Equipment Info Display */}
+        {equipmentInfo.length > 0 ? (
+          <div style={{ marginTop: "20px" }}>
+            <Title level={2}>Equipment</Title>
+            <Row gutter={[16, 16]}>
+              {equipmentInfo.map((item, index) => (
+                <Col xs={24} sm={12} lg={8} key={index}>
+                  <Card>
+                    {item.error ? (
+                      <Text style={{ color: "red" }}>{item.error}</Text>
+                    ) : (
+                      <>
+                        <Title level={4}>{item.equipment_name}</Title>
+                        <Text>{item.equipment_description}</Text>
+                      </>
+                    )}
+                  </Card>
+                </Col>
+              ))}
+            </Row>
+          </div>
+        )
+        : (
+          <div style={{ marginTop: "20px" }}>
+            <Title level={2}>Equipment</Title>
+            <Text>
+              No equipment detected. Please upload an image of your equipment to get recommendations.
+            </Text>
+          </div>
+        )}
+      </Card>
 
-      <Row gutter={[16, 16]}>
-        {recommendations.map((item) => (
-          <Col xs={24} sm={12} lg={8} key={item.id}>
-            <Card
-              hoverable
-              title={item.title}
-              bordered={true}
-              style={{ height: "100%" }}
-            >
-              <Text>{item.description}</Text>
-              <List
-                size="small"
-                dataSource={item.exercises}
-                renderItem={(exercise) => <List.Item>{exercise}</List.Item>}
-                style={{ marginTop: "10px" }}
-              />
-            </Card>
-          </Col>
-        ))}
-      </Row>
+      <Card style={{ marginBottom: "20px", textAlign: "left" }}>
+      {/* Balanced Workout Suggestions */}
+        {workouts.length > 0 ? (
+          <div style={{ marginTop: "20px" }}>
+            <Title level={2}>Workouts</Title>
+            <Row gutter={[16, 16]}>
+              {workouts.map((workout, index) => (
+                <Col xs={24} sm={12} lg={8} key={index}>
+                  <Card>
+                    <Title level={4}>{workout.workout_name}</Title>
+                    <Text>
+                      <strong>Muscles Targeted:</strong> {workout.muscles_targeted.join(", ")}
+                    </Text>
+                    <br />
+                    <Text>
+                      <strong>Equipment Required:</strong> {workout.equipment_required.join(", ")}
+                    </Text>
+                    <br />
+                    <Text>
+                      <strong>How to Perform:</strong> {workout.workout_description}
+                    </Text>
+                  </Card>
+                </Col>
+              ))}
+            </Row>
+          </div>
+        )
+        : (
+          <div style={{ marginTop: "20px" }}>
+            <Title level={2}>Workouts</Title>
+            <Text>
+              No workouts detected. Please upload an image of your equipment to get recommendations.
+            </Text>
+          </div>
+        )}
+      </Card>
+
     </div>
   );
 }

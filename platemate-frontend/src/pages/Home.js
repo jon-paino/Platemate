@@ -4,15 +4,14 @@ import { Card, Typography, Button, Upload, Row, Col } from "antd";
 import { UploadOutlined, ArrowRightOutlined } from "@ant-design/icons";
 import { Link } from "react-router-dom";
 import { message } from "antd";
-import axios from "axios";
-import { supabase } from "../services/supabase";
+import { supabase, saveToSupabase } from "../services/supabase";
+import { useNavigate } from "react-router-dom"; // Import the hook
 
 const { Title, Text } = Typography;
 
 function Home() {
+  const navigate = useNavigate(); // Initialize the hook
   const [uploadedFiles, setUploadedFiles] = useState([]); // To store uploaded files
-  const [equipmentInfo, setEquipmentInfo] = useState([]); // Store equipment details
-  const [workouts, setWorkouts] = useState([]); 
 
   // Handle file selection
   const handleFileSelection = (event) => {
@@ -63,10 +62,19 @@ function Home() {
       message.success({ content: "Workouts suggested successfully!", key: "uploadIndicator", duration: 2 });
 
       console.log("Response from backend:", data);
-      // Update the state with the response data
-      setEquipmentInfo(data.equipment_details);
-      setWorkouts(data.workouts);
-    } catch (error) {
+
+      // Save to Supabase
+      try {
+        await saveToSupabase(data.equipment_details, data.workouts);
+        alert("Equipment and workouts saved to Supabase!");
+        navigate("/recommendations");
+      }
+      catch (error) {
+        console.error("Error saving data to Supabase:", error);
+        alert("Error saving data to Supabase. Please try again later.");
+      }
+    } 
+    catch (error) {
       console.error("Error during backend communication:", error);
       message.error({ content: "Error processing images.", key: "uploadIndicator", duration: 2 });
     }
@@ -76,7 +84,7 @@ function Home() {
     <div style={{ padding: "20px", maxWidth: "1200px", margin: "0 auto", paddingBottom: "200px" }}>
       {/* Welcome Card */}
       <Card style={{ marginBottom: "20px", textAlign: "center" }}>
-        <Title level={2}>Welcome to Platemate</Title>
+        <Title level={1}>Welcome to Platemate</Title>
         <Text>
           Your ultimate fitness companion for personalized workout plans and
           equipment recommendations.
@@ -125,10 +133,10 @@ function Home() {
         <Col xs={24} sm={12} lg={8}>
           <Card
             hoverable
-            title="Retrieve Workout Recommendations"
+            title="View Workout Recommendations"
             actions={[
               <Link to="/recommendations">
-                <Button icon={<ArrowRightOutlined />}>Retrieve Workouts</Button>
+                <Button icon={<ArrowRightOutlined />}>View Workouts</Button>
               </Link>,
             ]}
           >
@@ -160,10 +168,10 @@ function Home() {
       </Row>
       </div>
 
-      {/* Equipment Info Display */}
+      {/* 
       {equipmentInfo.length > 0 && (
         <div style={{ marginTop: "20px" }}>
-          <Title level={3}>Detected Equipment</Title>
+          <Title level={2}>Detected Equipment</Title>
           <Row gutter={[16, 16]}>
             {equipmentInfo.map((item, index) => (
               <Col xs={24} sm={12} lg={8} key={index}>
@@ -173,7 +181,7 @@ function Home() {
                   ) : (
                     <>
                       <Title level={4}>{item.equipment_name}</Title>
-                      <Text>{item.description}</Text>
+                      <Text>{item.equipment_description}</Text>
                     </>
                   )}
                 </Card>
@@ -183,10 +191,9 @@ function Home() {
         </div>
       )}
 
-      {/* Balanced Workout Suggestions */}
       {workouts.length > 0 && (
         <div style={{ marginTop: "20px" }}>
-          <Title level={3}>Workout Suggestions</Title>
+          <Title level={2}>Workout Suggestions</Title>
           <Row gutter={[16, 16]}>
             {workouts.map((workout, index) => (
               <Col xs={24} sm={12} lg={8} key={index}>
@@ -199,13 +206,19 @@ function Home() {
                   <Text>
                     <strong>Equipment Required:</strong> {workout.equipment_required.join(", ")}
                   </Text>
+                  <br />
+                  <Text>
+                    <strong>How to Perform:</strong> {workout.workout_description}
+                  </Text>
                 </Card>
               </Col>
             ))}
           </Row>
         </div>
       )}
+      */}
     </div>
+
   );
 }
 
