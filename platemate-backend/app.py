@@ -11,7 +11,7 @@ load_dotenv()
 logging.basicConfig(format='%(levelname)s:%(name)s%(message)s')
 
 app = Flask(__name__)
-cors = CORS(app, resources={r"/upload-images": {"origins": "http://localhost:3000"}})
+cors = CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
 
 app.config.from_object('config.Config')
 
@@ -57,6 +57,27 @@ def upload_images():
 
     return jsonify(response), 200
 
+@app.route('/get-equipment-recommendations', methods=['POST'])
+def get_equipment_recommendations():
+    app.logger.info(f"Received request at /get-equipment-recommendations")
+    data = request.get_json()
+    app.logger.info(f"Request JSON: {data}")
+
+    current_equipment = data.get("equipment", [])
+    if not current_equipment:
+        app.logger.error("No equipment provided in the request.")
+        return jsonify({"error": "No equipment provided"}), 400
+
+    try:
+        app.logger.info(f"Processing equipment: {current_equipment}")
+        app.logger.info(f"Calling OpenAI API for recommendations...")
+        recommendations = get_additional_equipment_recommendations(current_equipment)
+        app.logger.info(f"Generated recommendations: {recommendations}")
+        return jsonify({"recommendations": recommendations}), 200
+    except Exception as e:
+        app.logger.error(f"Error occurred while generating recommendations: {str(e)}")
+        return jsonify({"error": str(e)}), 500
     
+
 if __name__ == '__main__':
     app.run(debug=True)

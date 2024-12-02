@@ -1,12 +1,20 @@
 import React, { useState, useEffect } from "react";
-import { Card, Typography, Row, Col, Button, message } from "antd";
-import { fetchEquipment, fetchWorkouts, deleteEquipment, deleteWorkout } from "../services/supabase";
+import { Card, Typography, Row, Col, Button, message, Modal } from "antd";
+import {
+  fetchEquipment,
+  fetchWorkouts,
+  deleteEquipment,
+  deleteWorkout,
+  fetchEquipmentRecommendations,
+} from "../services/supabase";
 
 const { Title, Text } = Typography;
 
 function Recommendations() {
   const [equipmentInfo, setEquipmentInfo] = useState([]);
   const [workouts, setWorkouts] = useState([]);
+  const [recommendations, setRecommendations] = useState(null); // Store recommendations
+  const [loading, setLoading] = useState(false); // Loading state for recommendations
 
   useEffect(() => {
     const loadUserData = async () => {
@@ -15,29 +23,30 @@ function Recommendations() {
       setEquipmentInfo(equipment);
       setWorkouts(workouts);
     };
-  
+
     loadUserData();
   }, []);
 
-  // Handle Equipment Deletion
-  const handleDeleteEquipment = async (id) => {
+  const handleGetRecommendations = async () => {
+    if (equipmentInfo.length === 0) {
+      message.error("You need to upload equipment first.");
+      return;
+    }
+
+    setLoading(true);
+    message.loading({ content: "Fetching recommendations...", key: "recIndicator" });
+
     try {
-        await deleteEquipment(id); // Call Supabase delete function
-        setEquipmentInfo((prev) => prev.filter((item) => item.id !== id)); // Update state
-        message.success("Equipment deleted successfully.");
+      const equipmentNames = equipmentInfo.map((item) => item.equipment_name);
+      const recommendations = await fetchEquipmentRecommendations(equipmentNames);
+      setRecommendations(recommendations); // Save recommendations
+      message.success({ content: "Recommendations fetched successfully!", key: "recIndicator" });
     } catch (error) {
-        message.error(`Failed to delete equipment: ${error.message}`);
+      message.error({ content: "Failed to fetch recommendations.", key: "recIndicator" });
+    } finally {
+      setLoading(false);
     }
   };
-  const handleDeleteWorkout = async (id) => {
-    try {
-        await deleteWorkout(id); // Call Supabase delete function
-        setWorkouts((prev) => prev.filter((item) => item.id !== id)); // Update state
-        message.success("Workout deleted successfully.");
-    } catch (error) {
-        message.error(`Failed to delete workout: ${error.message}`);
-    }
-};
 
   return (
     <div style={{ padding: "20px", maxWidth: "1200px", margin: "0 auto" }}>
@@ -47,10 +56,35 @@ function Recommendations() {
         <Text>
           These are the recommendations that you have received based on the equipment you have uploaded.
         </Text>
+        <br />
+        <Button
+          type="primary"
+          onClick={handleGetRecommendations}
+          loading={loading}
+          style={{ marginTop: "20px" }}
+        >
+          Get Equipment Recommendations
+        </Button>
       </Card>
 
+      {/* Equipment Recommendations Modal */}
+      {recommendations && (
+        <Modal
+          title="Equipment Recommendations"
+          visible={!!recommendations}
+          onCancel={() => setRecommendations(null)}
+          footer={[
+            <Button key="close" onClick={() => setRecommendations(null)}>
+              Close
+            </Button>,
+          ]}
+        >
+          <Text>{recommendations}</Text>
+        </Modal>
+      )}
+
+      {/* Equipment Section */}
       <Card style={{ marginBottom: "20px", textAlign: "left" }}>
-        {/* Equipment Info Display */}
         {equipmentInfo.length > 0 ? (
           <div style={{ marginTop: "20px" }}>
             <Title level={2}>Equipment</Title>
@@ -62,83 +96,64 @@ function Recommendations() {
                       <Button
                         type="text"
                         danger
-                        onClick={() => handleDeleteEquipment(item.id)}
+                        onClick={() => deleteEquipment(item.id)}
                       >
                         X
                       </Button>
                     }
-                    >
-                    {item.error ? (
-                      <Text style={{ color: "red" }}>{item.error}</Text>
-                    ) : (
-                      <>
-                        <Title level={4}>{item.equipment_name}</Title>
-                        <Text>{item.equipment_description}</Text>
-                      </>
-                    )}
+                  >
+                    <Title level={4}>{item.equipment_name}</Title>
+                    <Text>{item.equipment_description}</Text>
                   </Card>
                 </Col>
               ))}
             </Row>
           </div>
-        )
-        : (
-          <div style={{ marginTop: "20px" }}>
-            <Title level={2}>Equipment</Title>
-            <Text>
-              No equipment detected. Please upload an image of your equipment to get recommendations.
-            </Text>
-          </div>
+        ) : (
+          <Text>No equipment detected. Please upload some images to get recommendations.</Text>
         )}
       </Card>
 
+      {/* Workouts Section */}
       <Card style={{ marginBottom: "20px", textAlign: "left" }}>
-      {/* Balanced Workout Suggestions */}
         {workouts.length > 0 ? (
           <div style={{ marginTop: "20px" }}>
             <Title level={2}>Workouts</Title>
             <Row gutter={[16, 16]}>
-              {workouts.map((workout, index) => (
+              {workouts.map((item, index) => (
                 <Col xs={24} sm={12} lg={8} key={index}>
                   <Card
                     extra={
                       <Button
                         type="text"
                         danger
-                        onClick={() => handleDeleteWorkout(workout.id)}
+                        onClick={() => deleteWorkout(item.id)}
                       >
                         X
                       </Button>
                     }
                   >
-                    <Title level={4}>{workout.workout_name}</Title>
+                    <Title level={4}>{item.workout_name}</Title>
                     <Text>
-                      <strong>Muscles Targeted:</strong> {workout.muscles_targeted.join(", ")}
+                      <strong>Muscles Targeted:</strong> {item.muscles_targeted.join(", ")}
                     </Text>
                     <br />
                     <Text>
-                      <strong>Equipment Required:</strong> {workout.equipment_required.join(", ")}
+                      <strong>Equipment Required:</strong> {item.equipment_required.join(", ")}
                     </Text>
                     <br />
                     <Text>
-                      <strong>How to Perform:</strong> {workout.workout_description}
+                      <strong>How to Perform:</strong> {item.workout_description}
                     </Text>
                   </Card>
                 </Col>
               ))}
             </Row>
           </div>
-        )
-        : (
-          <div style={{ marginTop: "20px" }}>
-            <Title level={2}>Workouts</Title>
-            <Text>
-              No workouts detected. Please upload an image of your equipment to get recommendations.
-            </Text>
-          </div>
+        ) : (
+          <Text>No workouts detected. Please upload some images to get recommendations.</Text>
         )}
       </Card>
-
     </div>
   );
 }

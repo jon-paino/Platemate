@@ -172,13 +172,35 @@ export async function fetchWorkouts() {
 // Delete equipment by ID
 export async function deleteEquipment(equipmentId) {
     try {
-        const { error } = await supabase
+        const session = await getUserSession();
+
+        if (!session) {
+            console.error('User session not found.');
+            return;
+        }
+
+        const userId = session.session.user.id;
+
+        // Ensure the equipment belongs to the user
+        const { data: equipment, error: fetchError } = await supabase
+            .from("equipment")
+            .select("id")
+            .eq("id", equipmentId)
+            .eq("user_id", userId)
+            .single();
+
+        if (fetchError || !equipment) {
+            throw new Error("Equipment not found or does not belong to the user.");
+        }
+
+        // Proceed with deletion
+        const { error: deleteError } = await supabase
             .from("equipment")
             .delete()
             .eq("id", equipmentId);
 
-        if (error) {
-            throw new Error(`Error deleting equipment: ${error.message}`);
+        if (deleteError) {
+            throw new Error(`Error deleting equipment: ${deleteError.message}`);
         }
 
         console.log("Equipment deleted successfully.");
@@ -188,21 +210,91 @@ export async function deleteEquipment(equipmentId) {
     }
 }
 
+
 // Delete workout by ID
 export async function deleteWorkout(workoutId) {
     try {
-        const { error } = await supabase
+        const session = await getUserSession();
+
+        if (!session) {
+            console.error('User session not found.');
+            return;
+        }
+
+        const userId = session.session.user.id;
+
+        // Ensure the workout belongs to the user
+        const { data: workout, error: fetchError } = await supabase
+            .from("workouts")
+            .select("id")
+            .eq("id", workoutId)
+            .eq("user_id", userId)
+            .single();
+
+        if (fetchError || !workout) {
+            throw new Error("Workout not found or does not belong to the user.");
+        }
+
+        // Proceed with deletion
+        const { error: deleteError } = await supabase
             .from("workouts")
             .delete()
             .eq("id", workoutId);
 
-        if (error) {
-            throw new Error(`Error deleting workout: ${error.message}`);
+        if (deleteError) {
+            throw new Error(`Error deleting workout: ${deleteError.message}`);
         }
 
         console.log("Workout deleted successfully.");
     } catch (error) {
         console.error("Error deleting workout:", error);
+        throw error;
+    }
+}
+
+export async function fetchEquipmentRecommendations() {
+    try {
+        const session = await getUserSession();
+
+        if (!session) {
+            console.error('User session not found.');
+            return;
+        }
+
+        const userId = session.session.user.id;
+
+        // Fetch the user's equipment from the database
+        const { data: equipment, error: equipmentError } = await supabase
+            .from("equipment")
+            .select("equipment_name")
+            .eq("user_id", userId);
+
+        if (equipmentError) {
+            throw new Error(`Error fetching equipment: ${equipmentError.message}`);
+        }
+
+        if (!equipment || equipment.length === 0) {
+            console.error('No equipment found for user.');
+            return;
+        }
+
+        // Send the equipment names to the backend for recommendations
+        const response = await fetch("http://127.0.0.1:5000/get-equipment-recommendations", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ equipment: equipment.map(item => item.equipment_name) }),
+        });
+
+        if (!response.ok) {
+            throw new Error(`Error fetching recommendations: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        return data.recommendations;
+    } catch (error) {
+        console.error("Error fetching equipment recommendations:", error);
         throw error;
     }
 }

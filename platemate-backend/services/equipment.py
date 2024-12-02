@@ -94,3 +94,28 @@ def get_equipment_info_from_images(image_paths):
         raise ValueError(f"Invalid JSON response: {content}")
 
     return equipment_info
+
+def get_additional_equipment_recommendations(current_equipment):
+    """Generate recommendations for additional equipment using OpenAI."""
+    client = OpenAI()
+
+    prompt = f"""
+    The user currently owns the following workout equipment: {', '.join(current_equipment)}.
+    Recommend additional equipment they should consider purchasing to create a more comprehensive workout setup.
+    For each recommendation, include:
+    - Equipment name
+    - Purpose of the equipment
+    """
+
+    try:
+        response = client.chat.completions.create(
+            model="gpt-4",
+            messages=[
+                {"role": "system", "content": "You are a fitness equipment expert."},
+                {"role": "user", "content": prompt},
+            ],
+        )
+        recommendations = response.choices[0].message.content.strip()
+        return recommendations
+    except Exception as e:
+        raise RuntimeError(f"Error generating recommendations: {str(e)}")
