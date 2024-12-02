@@ -10,35 +10,49 @@ import { supabase } from "../services/supabase";
 const { Title, Text } = Typography;
 
 function Home() {
-  const [equipmentInfo, setEquipmentInfo] = useState(null);
+  const [uploadedFiles, setUploadedFiles] = useState([]); // To store uploaded files
+  const [equipmentInfo, setEquipmentInfo] = useState([]); // Store equipment details
+  const [workouts, setWorkouts] = useState([]); 
 
-  const handleImageUpload = async (event) => {
-    const file = event.target.files[0];
+  // Handle file selection
+  const handleFileSelection = (event) => {
+    const files = Array.from(event.target.files);
 
-    if (!file) {
-      message.error('No file selected');
+    if (files.some(file => !file.type.startsWith("image/"))) {
+      message.error("Only image files are allowed.");
       return;
     }
 
-    message.loading({ content: 'Uploading...', key: 'uploadIndicator' });
+    setUploadedFiles((prevFiles) => [...prevFiles, ...files]);
+    message.success(`${files.length} file(s) selected.`);
+  };
 
-    // Retrieve the JWT token
-    const { data: { session } } = await supabase.auth.getSession();
-    const token = session?.access_token;
-    console.log('JWT Token:', token);
+  const handleSuggestWorkouts = async () => {
+    if (uploadedFiles.length === 0) {
+      message.error("No images selected. Please upload at least one image.");
+      return;
+    }
 
-    // Prepare the form data
-    const formData = new FormData();
-    formData.append('image', file);
-    console.log('Uploading image:', file);
+    message.loading({ content: "Processing images...", key: "uploadIndicator" });
 
     try {
-      const response = await fetch('http://localhost:5000/upload-image', {
-        method: 'POST',
+      // Retrieve the JWT token
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+
+      // Prepare FormData with all selected files
+      const formData = new FormData();
+      uploadedFiles.forEach((file, index) => {
+        formData.append(`image_${index}`, file);
+      });
+
+      // Send request to backend
+      const response = await fetch("http://127.0.0.1:5000/upload-images", {
+        method: "POST",
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
-        body: formData
+        body: formData,
       });
 
       if (!response.ok) {
@@ -46,20 +60,20 @@ function Home() {
       }
 
       const data = await response.json();
+      message.success({ content: "Workouts suggested successfully!", key: "uploadIndicator", duration: 2 });
 
-      message.success({ content: 'Image processed successfully!', key: 'uploadIndicator', duration: 2 });
-
-
-      console.log('Response from backend:', data);
-      setEquipmentInfo(data);
+      console.log("Response from backend:", data);
+      // Update the state with the response data
+      setEquipmentInfo(data.equipment_details);
+      setWorkouts(data.workouts);
     } catch (error) {
-      console.error('Error during backend communication:', error);
-      message.error({ content: 'Error uploading image.', key: 'uploadIndicator', duration: 2 });
+      console.error("Error during backend communication:", error);
+      message.error({ content: "Error processing images.", key: "uploadIndicator", duration: 2 });
     }
   };
 
   return (
-    <div style={{ padding: "20px", maxWidth: "1200px", margin: "0 auto" }}>
+    <div style={{ padding: "20px", maxWidth: "1200px", margin: "0 auto", paddingBottom: "200px" }}>
       {/* Welcome Card */}
       <Card style={{ marginBottom: "20px", textAlign: "center" }}>
         <Title level={2}>Welcome to Platemate</Title>
@@ -69,33 +83,42 @@ function Home() {
         </Text>
       </Card>
 
+      <div style={{ paddingBottom: "50px" }}>
       {/* Feature Cards */}
       <Row gutter={[16, 16]}>
         <Col xs={24} sm={12} lg={8}>
           <Card
             hoverable
-            title="Upload Equipment Image"
+            title="Upload Equipment Images"
             actions={[
               <div key="upload">
                 <input
                   type="file"
                   accept="image/*"
-                  onChange={handleImageUpload}
-                  style={{ display: 'none' }}
+                  multiple
+                  onChange={handleFileSelection}
+                  style={{ display: "none" }}
                   id="upload-input"
                 />
-                <Button icon={<UploadOutlined />} onClick={() => document.getElementById('upload-input').click()}>
-                  Choose Image
+                <Button icon={<UploadOutlined />} onClick={() => document.getElementById("upload-input").click()}>
+                  Choose Images
                 </Button>
               </div>,
-              <Button type="primary" icon={<ArrowRightOutlined />}>
+              <Button type="primary" icon={<ArrowRightOutlined />} onClick={handleSuggestWorkouts}>
                 Suggest Workouts
               </Button>,
             ]}
           >
             <Text>
-              Upload an image of your equipment to get personalized workout recommendations.
+              Upload images of your equipment. Once you're ready, click "Suggest Workouts" to process the images and receive personalized workout recommendations.
             </Text>
+            <br />
+            <br />
+            {uploadedFiles.length > 0 && (
+              <Text>
+                <strong>Uploaded Files:</strong> {uploadedFiles.map((file) => file.name).join(", ")}
+              </Text>
+            )}
           </Card>
         </Col>
 
@@ -134,21 +157,54 @@ function Home() {
             </Text>
           </Card>
         </Col>
-        <Col xs={24} sm={12} lg={8}>
-        {equipmentInfo && (
-          <Card style={{ marginTop: "20px" }}>
-            <Title level={3}>{equipmentInfo.equipment_name}</Title>
-            <Text>{equipmentInfo.description}</Text>
-            <Text>
-              <strong>Muscles Targeted:</strong> {equipmentInfo.muscles_targeted.join(", ")}
-            </Text>
-            <Text>
-              <strong>Exercises:</strong> {equipmentInfo.exercises.join(", ")}
-            </Text>
-          </Card>
-        )}
-        </Col>
       </Row>
+      </div>
+
+      {/* Equipment Info Display */}
+      {equipmentInfo.length > 0 && (
+        <div style={{ marginTop: "20px" }}>
+          <Title level={3}>Detected Equipment</Title>
+          <Row gutter={[16, 16]}>
+            {equipmentInfo.map((item, index) => (
+              <Col xs={24} sm={12} lg={8} key={index}>
+                <Card>
+                  {item.error ? (
+                    <Text style={{ color: "red" }}>{item.error}</Text>
+                  ) : (
+                    <>
+                      <Title level={4}>{item.equipment_name}</Title>
+                      <Text>{item.description}</Text>
+                    </>
+                  )}
+                </Card>
+              </Col>
+            ))}
+          </Row>
+        </div>
+      )}
+
+      {/* Balanced Workout Suggestions */}
+      {workouts.length > 0 && (
+        <div style={{ marginTop: "20px" }}>
+          <Title level={3}>Workout Suggestions</Title>
+          <Row gutter={[16, 16]}>
+            {workouts.map((workout, index) => (
+              <Col xs={24} sm={12} lg={8} key={index}>
+                <Card>
+                  <Title level={4}>{workout.workout_name}</Title>
+                  <Text>
+                    <strong>Muscles Targeted:</strong> {workout.muscles_targeted.join(", ")}
+                  </Text>
+                  <br />
+                  <Text>
+                    <strong>Equipment Required:</strong> {workout.equipment_required.join(", ")}
+                  </Text>
+                </Card>
+              </Col>
+            ))}
+          </Row>
+        </div>
+      )}
     </div>
   );
 }
