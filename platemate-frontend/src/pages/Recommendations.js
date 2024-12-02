@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
-import { Card, Typography, Row, Col } from "antd";
-import { fetchEquipment, fetchWorkouts } from "../services/supabase";
+import { Card, Typography, Row, Col, Button, message } from "antd";
+import { fetchEquipment, fetchWorkouts, deleteEquipment, deleteWorkout } from "../services/supabase";
 
 const { Title, Text } = Typography;
 
@@ -19,6 +19,25 @@ function Recommendations() {
     loadUserData();
   }, []);
 
+  // Handle Equipment Deletion
+  const handleDeleteEquipment = async (id) => {
+    try {
+        await deleteEquipment(id); // Call Supabase delete function
+        setEquipmentInfo((prev) => prev.filter((item) => item.id !== id)); // Update state
+        message.success("Equipment deleted successfully.");
+    } catch (error) {
+        message.error(`Failed to delete equipment: ${error.message}`);
+    }
+  };
+  const handleDeleteWorkout = async (id) => {
+    try {
+        await deleteWorkout(id); // Call Supabase delete function
+        setWorkouts((prev) => prev.filter((item) => item.id !== id)); // Update state
+        message.success("Workout deleted successfully.");
+    } catch (error) {
+        message.error(`Failed to delete workout: ${error.message}`);
+    }
+};
 
   return (
     <div style={{ padding: "20px", maxWidth: "1200px", margin: "0 auto" }}>
@@ -38,7 +57,17 @@ function Recommendations() {
             <Row gutter={[16, 16]}>
               {equipmentInfo.map((item, index) => (
                 <Col xs={24} sm={12} lg={8} key={index}>
-                  <Card>
+                  <Card
+                    extra={
+                      <Button
+                        type="text"
+                        danger
+                        onClick={() => handleDeleteEquipment(item.id)}
+                      >
+                        X
+                      </Button>
+                    }
+                    >
                     {item.error ? (
                       <Text style={{ color: "red" }}>{item.error}</Text>
                     ) : (
@@ -71,7 +100,17 @@ function Recommendations() {
             <Row gutter={[16, 16]}>
               {workouts.map((workout, index) => (
                 <Col xs={24} sm={12} lg={8} key={index}>
-                  <Card>
+                  <Card
+                    extra={
+                      <Button
+                        type="text"
+                        danger
+                        onClick={() => handleDeleteWorkout(workout.id)}
+                      >
+                        X
+                      </Button>
+                    }
+                  >
                     <Title level={4}>{workout.workout_name}</Title>
                     <Text>
                       <strong>Muscles Targeted:</strong> {workout.muscles_targeted.join(", ")}

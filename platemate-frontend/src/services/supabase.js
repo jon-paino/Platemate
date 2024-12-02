@@ -167,3 +167,42 @@ export async function fetchWorkouts() {
         return null;
     }
 }
+
+
+// Delete equipment by ID
+export async function deleteEquipment(equipmentId) {
+    try {
+        const { error } = await supabase
+            .from("equipment")
+            .delete()
+            .eq("id", equipmentId);
+
+        if (error) {
+            throw new Error(`Error deleting equipment: ${error.message}`);
+        }
+
+        console.log("Equipment deleted successfully.");
+    } catch (error) {
+        console.error("Error deleting equipment:", error);
+        throw error;
+    }
+}
+
+// Delete workout by ID
+export async function deleteWorkout(workoutId) {
+    try {
+        const { error } = await supabase
+            .from("workouts")
+            .delete()
+            .eq("id", workoutId);
+
+        if (error) {
+            throw new Error(`Error deleting workout: ${error.message}`);
+        }
+
+        console.log("Workout deleted successfully.");
+    } catch (error) {
+        console.error("Error deleting workout:", error);
+        throw error;
+    }
+}
