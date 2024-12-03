@@ -1,4 +1,32 @@
-import { createClient } from "@supabase/supabase-js";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: services/supabase.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: services/supabase.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { createClient } from "@supabase/supabase-js";
 
 export const supabase = createClient(
     process.env.REACT_APP_SUPABASE_URL,
@@ -13,7 +41,7 @@ export const supabase = createClient(
  * @param {string} name - The name of the user.
  * @param {string} email - The user's email address.
  * @param {string} password - The user's password.
- * @returns {Promise<string>} - Returns 'Success' or an error message if account creation fails.
+ * @returns {Promise&lt;string>} - Returns 'Success' or an error message if account creation fails.
  */
 export async function createSupabaseAccount(name, email, password) {
     console.log("Creating account with name:", name, "email:", email, "password:", password);
@@ -37,7 +65,7 @@ export async function createSupabaseAccount(name, email, password) {
  * @function
  * @param {string} email - The user's email address.
  * @param {string} password - The user's password.
- * @returns {Promise<string>} - Returns 'Success' or an error message if login fails.
+ * @returns {Promise&lt;string>} - Returns 'Success' or an error message if login fails.
  */
 export async function loginSupabaseAccount(email, password) {
     const { error } = await supabase.auth.signInWithPassword({
@@ -53,7 +81,7 @@ export async function loginSupabaseAccount(email, password) {
  * 
  * @async
  * @function
- * @returns {Promise<void>}
+ * @returns {Promise&lt;void>}
  */
 export async function logoutSupabaseAccount() {
     await supabase.auth.signOut();
@@ -64,7 +92,7 @@ export async function logoutSupabaseAccount() {
  * 
  * @async
  * @function
- * @returns {Promise<Object|null>} - The user's session or null if not logged in.
+ * @returns {Promise&lt;Object|null>} - The user's session or null if not logged in.
  */
 export async function getUserSession() {
     try {
@@ -82,10 +110,10 @@ export async function getUserSession() {
  * 
  * @async
  * @function
- * @param {Array<Object>} equipmentDetails - Array of equipment details to save.
- * @param {Array<Object>} workouts - Array of workout details to save.
+ * @param {Array&lt;Object>} equipmentDetails - Array of equipment details to save.
+ * @param {Array&lt;Object>} workouts - Array of workout details to save.
  * @throws Will throw an error if saving data fails.
- * @returns {Promise<void>}
+ * @returns {Promise&lt;void>}
  */
 export async function saveToSupabase(equipmentDetails, workouts) {
     try {
@@ -121,7 +149,7 @@ export async function saveToSupabase(equipmentDetails, workouts) {
                 .from("equipment")
                 .insert(equipmentInsert);
 
-            if (equipmentError && !equipmentError.message.includes("duplicate key")) {
+            if (equipmentError &amp;&amp; !equipmentError.message.includes("duplicate key")) {
                 throw new Error(`Error inserting equipment: ${equipmentError.message}`);
             }
         }
@@ -140,7 +168,7 @@ export async function saveToSupabase(equipmentDetails, workouts) {
                 .from("workouts")
                 .insert(workoutInsert);
 
-            if (workoutError && !workoutError.message.includes("duplicate key")) {
+            if (workoutError &amp;&amp; !workoutError.message.includes("duplicate key")) {
                 throw new Error(`Error inserting workouts: ${workoutError.message}`);
             }
         }
@@ -158,7 +186,7 @@ export async function saveToSupabase(equipmentDetails, workouts) {
  * 
  * @async
  * @function
- * @returns {Promise<Array<Object>|null>} - An array of equipment or null if an error occurs.
+ * @returns {Promise&lt;Array&lt;Object>|null>} - An array of equipment or null if an error occurs.
  */
 export async function fetchEquipment() {
     try {
@@ -193,7 +221,7 @@ export async function fetchEquipment() {
  * 
  * @async
  * @function
- * @returns {Promise<Array<Object>|null>} - An array of workouts or null if an error occurs.
+ * @returns {Promise&lt;Array&lt;Object>|null>} - An array of workouts or null if an error occurs.
  */
 export async function fetchWorkouts() {
     try {
@@ -230,7 +258,7 @@ export async function fetchWorkouts() {
  * @function
  * @param {number} equipmentId - The ID of the equipment to delete.
  * @throws Will throw an error if deletion fails.
- * @returns {Promise<void>}
+ * @returns {Promise&lt;void>}
  */
 export async function deleteEquipment(equipmentId) {
     try {
@@ -277,7 +305,7 @@ export async function deleteEquipment(equipmentId) {
  * @function
  * @param {number} workoutId - The ID of the workout to delete.
  * @throws Will throw an error if deletion fails.
- * @returns {Promise<void>}
+ * @returns {Promise&lt;void>}
  */
 export async function deleteWorkout(workoutId) {
     try {
@@ -322,7 +350,7 @@ export async function deleteWorkout(workoutId) {
  * 
  * @async
  * @function
- * @returns {Promise<Array<Object>|null>} - An array of equipment recommendations or null if an error occurs.
+ * @returns {Promise&lt;Array&lt;Object>|null>} - An array of equipment recommendations or null if an error occurs.
  */
 export async function fetchEquipmentRecommendations() {
     try {
@@ -372,3 +400,26 @@ export async function fetchEquipmentRecommendations() {
         throw error;
     }
 }
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#Home">Home</a></li><li><a href="global.html#Recommendations">Recommendations</a></li><li><a href="global.html#createSupabaseAccount">createSupabaseAccount</a></li><li><a href="global.html#deleteEquipment">deleteEquipment</a></li><li><a href="global.html#deleteWorkout">deleteWorkout</a></li><li><a href="global.html#fetchEquipment">fetchEquipment</a></li><li><a href="global.html#fetchEquipmentRecommendations">fetchEquipmentRecommendations</a></li><li><a href="global.html#fetchWorkouts">fetchWorkouts</a></li><li><a href="global.html#getUserSession">getUserSession</a></li><li><a href="global.html#loginSupabaseAccount">loginSupabaseAccount</a></li><li><a href="global.html#logoutSupabaseAccount">logoutSupabaseAccount</a></li><li><a href="global.html#saveToSupabase">saveToSupabase</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Tue Dec 03 2024 14:16:09 GMT-0800 (Pacific Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: pages/Recommendations.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: pages/Recommendations.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React, { useState, useEffect } from "react";
+import { Card, Typography, Row, Col, Button, message, Modal, Divider } from "antd";
+import { CloseOutlined } from "@ant-design/icons";
+import {
+  fetchEquipment,
+  fetchWorkouts,
+  deleteEquipment,
+  deleteWorkout,
+  fetchEquipmentRecommendations,
+} from "../services/supabase";
+
+const { Title, Text } = Typography;
+
+/**
+ * Recommendations Component
+ * Displays a personalized workout page with equipment and workout recommendations.
+ * 
+ * @component
+ */
+function Recommendations() {
+  const [equipmentInfo, setEquipmentInfo] = useState([]); // Equipment information
+  const [workouts, setWorkouts] = useState([]); // Workouts information
+  const [recommendations, setRecommendations] = useState([]); // Store recommendations
+  const [loading, setLoading] = useState(false); // Loading state for recommendations
+
+  /**
+   * Fetches equipment and workout data on component mount.
+   * 
+   * @function
+   * @returns {Promise&lt;void>}
+   */
+  useEffect(() => {
+    const loadUserData = async () => {
+      const equipment = await fetchEquipment();
+      const workouts = await fetchWorkouts();
+      setEquipmentInfo(equipment);
+      setWorkouts(workouts);
+    };
+
+    loadUserData();
+  }, []);
+
+  /**
+   * Handles fetching equipment recommendations based on the user's uploaded equipment.
+   * 
+   * @async
+   * @function
+   * @returns {Promise&lt;void>}
+   */
+  const handleGetRecommendations = async () => {
+    if (equipmentInfo.length === 0) {
+      message.error("You need to upload equipment first.");
+      return;
+    }
+
+    setLoading(true);
+    message.loading({ content: "Fetching recommendations...", key: "recIndicator" });
+
+    try {
+      const equipmentNames = equipmentInfo.map((item) => item.equipment_name);
+      const recommendations = await fetchEquipmentRecommendations(equipmentNames);
+      setRecommendations(recommendations); // Save recommendations
+      message.success({ content: "Recommendations fetched successfully!", key: "recIndicator" });
+    } catch (error) {
+      message.error({ content: "Failed to fetch recommendations.", key: "recIndicator" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    &lt;div style={{ padding: "20px", maxWidth: "1200px", margin: "0 auto" }}>
+      {/* Welcome Card */}
+      &lt;Card style={{ marginBottom: "20px", textAlign: "center" }}>
+        &lt;Title level={1}>Personalized Workouts&lt;/Title>
+        &lt;Text>
+          These are the recommendations that you have received based on the equipment you have uploaded.
+        &lt;/Text>
+        &lt;br />
+        &lt;Button
+          type="primary"
+          onClick={handleGetRecommendations}
+          loading={loading}
+          style={{ marginTop: "20px" }}
+        >
+          Get Equipment Recommendations
+        &lt;/Button>
+      &lt;/Card>
+
+      {/* Equipment Recommendations Modal */}
+      {recommendations &amp;&amp; (
+        &lt;Modal
+          title="Equipment Recommendations"
+          visible={!!recommendations}
+          onCancel={() => setRecommendations(null)}
+          footer={[
+            &lt;Button key="close" onClick={() => setRecommendations(null)}>
+              Close
+            &lt;/Button>,
+          ]}
+        >
+          &lt;Row gutter={[16, 16]}>
+            {recommendations.map((item, index) => (
+              &lt;Col xs={24} sm={24} md={24} key={index}>
+                &lt;Card
+                  title={item.equipment_name}
+                  bordered={true}
+                  style={{ height: "100%" }}
+                >
+                  &lt;Text>
+                    &lt;strong>Price:&lt;/strong> {item.price}
+                  &lt;/Text>
+                  &lt;br />
+                  &lt;br />
+                  &lt;Text>
+                    &lt;strong>Purpose:&lt;/strong> {item.purpose}
+                  &lt;/Text>
+                  &lt;br />
+                  &lt;br />
+                  &lt;Text>
+                    &lt;strong>Complements Existing Equipment:&lt;/strong> {item.complementary_use}
+                  &lt;/Text>
+                &lt;/Card>
+              &lt;/Col>
+            ))}
+          &lt;/Row>
+        &lt;/Modal>
+      )}
+
+      {/* Equipment Section */}
+      &lt;Card style={{ marginBottom: "20px", textAlign: "left" }}>
+        {equipmentInfo.length > 0 ? (
+          &lt;div style={{ marginTop: "20px" }}>
+            &lt;Title level={2}>Equipment&lt;/Title>
+            &lt;Row gutter={[16, 16]}>
+              {equipmentInfo.map((item, index) => (
+                &lt;Col xs={24} sm={12} lg={8} key={index}>
+                  &lt;Card
+                    extra={
+                      &lt;Button
+                        type="text"
+                        danger
+                        onClick={() => deleteEquipment(item.id)}
+                        icon={&lt;CloseOutlined />}
+                      />
+                    }
+                  >
+                    &lt;Title level={4}>{item.equipment_name}&lt;/Title>
+                    &lt;Text>{item.equipment_description}&lt;/Text>
+                  &lt;/Card>
+                &lt;/Col>
+              ))}
+            &lt;/Row>
+          &lt;/div>
+        ) : (
+          &lt;Text>No equipment detected. Please upload some images to get recommendations.&lt;/Text>
+        )}
+      &lt;/Card>
+
+      {/* Workouts Section */}
+      &lt;Card style={{ marginBottom: "20px", textAlign: "left" }}>
+        {workouts.length > 0 ? (
+          &lt;div style={{ marginTop: "20px" }}>
+            &lt;Title level={2}>Workouts&lt;/Title>
+            &lt;Row gutter={[16, 16]}>
+              {workouts.map((item, index) => (
+                &lt;Col xs={24} sm={12} lg={8} key={index}>
+                  &lt;Card
+                    extra={
+                      &lt;Button
+                        type="text"
+                        danger
+                        onClick={() => deleteWorkout(item.id)}
+                        icon={&lt;CloseOutlined />}
+                      />
+                    }
+                  >
+                    &lt;Title level={4}>{item.workout_name}&lt;/Title>
+                    &lt;Text>
+                      &lt;strong>Muscles Targeted:&lt;/strong> {item.muscles_targeted.join(", ")}
+                    &lt;/Text>
+                    &lt;br />
+                    &lt;Text>
+                      &lt;strong>Equipment Required:&lt;/strong> {item.equipment_required.join(", ")}
+                    &lt;/Text>
+                    &lt;br />
+                    &lt;Text>
+                      &lt;strong>How to Perform:&lt;/strong> {item.workout_description}
+                    &lt;/Text>
+                  &lt;/Card>
+                &lt;/Col>
+              ))}
+            &lt;/Row>
+          &lt;/div>
+        ) : (
+          &lt;Text>No workouts detected. Please upload some images to get recommendations.&lt;/Text>
+        )}
+      &lt;/Card>
+    &lt;/div>
+  );
+}
+
+export default Recommendations;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#Home">Home</a></li><li><a href="global.html#Recommendations">Recommendations</a></li><li><a href="global.html#createSupabaseAccount">createSupabaseAccount</a></li><li><a href="global.html#deleteEquipment">deleteEquipment</a></li><li><a href="global.html#deleteWorkout">deleteWorkout</a></li><li><a href="global.html#fetchEquipment">fetchEquipment</a></li><li><a href="global.html#fetchEquipmentRecommendations">fetchEquipmentRecommendations</a></li><li><a href="global.html#fetchWorkouts">fetchWorkouts</a></li><li><a href="global.html#getUserSession">getUserSession</a></li><li><a href="global.html#loginSupabaseAccount">loginSupabaseAccount</a></li><li><a href="global.html#logoutSupabaseAccount">logoutSupabaseAccount</a></li><li><a href="global.html#saveToSupabase">saveToSupabase</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Tue Dec 03 2024 14:16:09 GMT-0800 (Pacific Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

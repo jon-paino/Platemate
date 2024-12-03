@@ -1,4 +1,32 @@
-import React, { useState } from "react";
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: pages/Login.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: pages/Login.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { Button, Input, Typography, Layout } from "antd";
 import useUserContext from "../contexts/UserContext";
@@ -26,7 +54,7 @@ export default function Login() {
    * 
    * @async
    * @function
-   * @returns {Promise<void>}
+   * @returns {Promise&lt;void>}
    */
   const handleLogin = async () => {
     const resp = await login(email, password);
@@ -39,9 +67,9 @@ export default function Login() {
   };
 
   return (
-    <div>
+    &lt;div>
       {/* Header Section */}
-      <Header
+      &lt;Header
         style={{
           width: "100%",
           zIndex: 1000,
@@ -50,7 +78,7 @@ export default function Login() {
           justifyContent: "space-between",
         }}
       >
-        <div
+        &lt;div
           className="logo"
           style={{
             display: "flex",
@@ -58,12 +86,12 @@ export default function Login() {
             paddingRight: "30px",
           }}
         >
-          <h1 style={{ color: "white", margin: 0 }}>Platemate</h1>
-        </div>
-      </Header>
+          &lt;h1 style={{ color: "white", margin: 0 }}>Platemate&lt;/h1>
+        &lt;/div>
+      &lt;/Header>
 
       {/* Login Form Section */}
-      <div
+      &lt;div
         style={{
           maxWidth: "400px",
           margin: "50px auto",
@@ -71,11 +99,11 @@ export default function Login() {
           paddingTop: "80px",
         }}
       >
-        <Title level={2}>Login</Title>
+        &lt;Title level={2}>Login&lt;/Title>
         {/* Error Message Display */}
-        {error && <p style={{ color: "red" }}>{error}</p>}
+        {error &amp;&amp; &lt;p style={{ color: "red" }}>{error}&lt;/p>}
         {/* Email Input */}
-        <Input
+        &lt;Input
           placeholder="Email"
           type="email"
           value={email}
@@ -83,7 +111,7 @@ export default function Login() {
           style={{ marginBottom: "10px" }}
         />
         {/* Password Input */}
-        <Input
+        &lt;Input
           placeholder="Password"
           type="password"
           value={password}
@@ -91,23 +119,23 @@ export default function Login() {
           style={{ marginBottom: "10px" }}
         />
         {/* Login Button */}
-        <Button
+        &lt;Button
           type="primary"
           onClick={handleLogin}
           style={{ marginBottom: "10px" }}
         >
           Login
-        </Button>
+        &lt;/Button>
         {/* Link to Registration Page */}
-        <div>
-          <Link to="/register" style={{ color: "#1890ff" }}>
+        &lt;div>
+          &lt;Link to="/register" style={{ color: "#1890ff" }}>
             Don’t have an account? Register here
-          </Link>
-        </div>
-      </div>
+          &lt;/Link>
+        &lt;/div>
+      &lt;/div>
 
       {/* Footer Section */}
-      <Footer
+      &lt;Footer
         style={{
           position: "fixed",
           bottom: 0,
@@ -118,8 +146,30 @@ export default function Login() {
           padding: "10px",
         }}
       >
-        <Text style={{ color: "#fff" }}>© 2024 Platemate.</Text>
-      </Footer>
-    </div>
+        &lt;Text style={{ color: "#fff" }}>© 2024 Platemate.&lt;/Text>
+      &lt;/Footer>
+    &lt;/div>
   );
-}
+}</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#Home">Home</a></li><li><a href="global.html#Recommendations">Recommendations</a></li><li><a href="global.html#createSupabaseAccount">createSupabaseAccount</a></li><li><a href="global.html#deleteEquipment">deleteEquipment</a></li><li><a href="global.html#deleteWorkout">deleteWorkout</a></li><li><a href="global.html#fetchEquipment">fetchEquipment</a></li><li><a href="global.html#fetchEquipmentRecommendations">fetchEquipmentRecommendations</a></li><li><a href="global.html#fetchWorkouts">fetchWorkouts</a></li><li><a href="global.html#getUserSession">getUserSession</a></li><li><a href="global.html#loginSupabaseAccount">loginSupabaseAccount</a></li><li><a href="global.html#logoutSupabaseAccount">logoutSupabaseAccount</a></li><li><a href="global.html#saveToSupabase">saveToSupabase</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Tue Dec 03 2024 14:16:09 GMT-0800 (Pacific Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

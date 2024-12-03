@@ -11,12 +11,24 @@ import {
 
 const { Title, Text } = Typography;
 
+/**
+ * Recommendations Component
+ * Displays a personalized workout page with equipment and workout recommendations.
+ * 
+ * @component
+ */
 function Recommendations() {
-  const [equipmentInfo, setEquipmentInfo] = useState([]);
-  const [workouts, setWorkouts] = useState([]);
+  const [equipmentInfo, setEquipmentInfo] = useState([]); // Equipment information
+  const [workouts, setWorkouts] = useState([]); // Workouts information
   const [recommendations, setRecommendations] = useState([]); // Store recommendations
   const [loading, setLoading] = useState(false); // Loading state for recommendations
 
+  /**
+   * Fetches equipment and workout data on component mount.
+   * 
+   * @function
+   * @returns {Promise<void>}
+   */
   useEffect(() => {
     const loadUserData = async () => {
       const equipment = await fetchEquipment();
@@ -28,6 +40,13 @@ function Recommendations() {
     loadUserData();
   }, []);
 
+  /**
+   * Handles fetching equipment recommendations based on the user's uploaded equipment.
+   * 
+   * @async
+   * @function
+   * @returns {Promise<void>}
+   */
   const handleGetRecommendations = async () => {
     if (equipmentInfo.length === 0) {
       message.error("You need to upload equipment first.");
@@ -81,29 +100,29 @@ function Recommendations() {
           ]}
         >
           <Row gutter={[16, 16]}>
-          {recommendations.map((item, index) => (
-            <Col xs={24} sm={24} md={24} key={index}>
-              <Card
-                title={item.equipment_name}
-                bordered={true}
-                style={{ height: "100%" }}
-              >
-                <Text>
-                  <strong>Price:</strong> {item.price}
-                </Text>
-                <br />
-                <br />
-                <Text>
-                  <strong>Purpose:</strong> {item.purpose}
-                </Text>
-                <br />
-                <br />
-                <Text>
-                  <strong>Complements Existing Equipment:</strong> {item.complementary_use}
-                </Text>
-              </Card>
-            </Col>
-          ))}
+            {recommendations.map((item, index) => (
+              <Col xs={24} sm={24} md={24} key={index}>
+                <Card
+                  title={item.equipment_name}
+                  bordered={true}
+                  style={{ height: "100%" }}
+                >
+                  <Text>
+                    <strong>Price:</strong> {item.price}
+                  </Text>
+                  <br />
+                  <br />
+                  <Text>
+                    <strong>Purpose:</strong> {item.purpose}
+                  </Text>
+                  <br />
+                  <br />
+                  <Text>
+                    <strong>Complements Existing Equipment:</strong> {item.complementary_use}
+                  </Text>
+                </Card>
+              </Col>
+            ))}
           </Row>
         </Modal>
       )}
