@@ -15,17 +15,33 @@ cors = CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
 
 app.config.from_object('config.Config')
 
-
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
 def allowed_file(filename):
+    """
+    Check if the uploaded file has a valid extension.
+
+    Args:
+        filename (str): Name of the file to check.
+
+    Returns:
+        bool: True if the file extension is allowed, False otherwise.
+    """
     return '.' in filename and \
            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 @app.route('/upload-images', methods=['POST'])
 def upload_images():
+    """
+    Endpoint to handle image uploads.
 
+    Receives image files via a POST request, processes them to extract equipment information, and returns the results.
+    Temporary files are cleaned up after processing.
+
+    Returns:
+        JSON: A JSON response containing equipment information or an error message.
+    """
     app.logger.info(f"Request Headers: {request.headers}")
     app.logger.info(f"Request Files: {request.files}")
     app.logger.info(f"Request Form: {request.form}")
@@ -57,8 +73,17 @@ def upload_images():
 
     return jsonify(response), 200
 
+
 @app.route('/get-equipment-recommendations', methods=['POST'])
 def get_equipment_recommendations():
+    """
+    Endpoint to generate additional equipment recommendations.
+
+    Receives a list of current equipment via a POST request, generates recommendations using an external API, and returns the results.
+
+    Returns:
+        JSON: A JSON response containing additional equipment recommendations or an error message.
+    """
     app.logger.info(f"Received request at /get-equipment-recommendations")
     data = request.get_json()
     app.logger.info(f"Request JSON: {data}")
@@ -80,4 +105,9 @@ def get_equipment_recommendations():
     
 
 if __name__ == '__main__':
+    """
+    Entry point for running the Flask application.
+
+    The application runs in debug mode for development purposes.
+    """
     app.run(debug=True)

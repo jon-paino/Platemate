@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Platemate Backend Documentation</title>
+    <link rel="stylesheet" href="_static/basic.css" />
+    <link rel="stylesheet" href="_static/alabaster.css" />
+  </head>
+  <body>
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            <section id="platemate-backend">
+              <h1>Platemate Backend Documentation</h1>
+              <p>This documentation provides an overview of the `app.py` module in the Platemate Backend application.</p>
+
+              <section id="module-description">
+                <h2>Module Overview</h2>
+                <p>
+                  The `app.py` module defines the main Flask application for the Platemate backend. It includes endpoints for uploading images and generating equipment recommendations.
+                </p>
+              </section>
+
+              <section id="functions">
+                <h2>Functions</h2>
+
+                <div id="allowed_file">
+                  <h3>allowed_file</h3>
+                  <p>Check if the uploaded file has a valid extension.</p>
+                  <ul>
+                    <li><strong>Args:</strong></li>
+                    <ul>
+                      <li><code>filename (str)</code>: Name of the file to check.</li>
+                    </ul>
+                    <li><strong>Returns:</strong></li>
+                    <ul>
+                      <li><code>bool</code>: True if the file extension is allowed, False otherwise.</li>
+                    </ul>
+                  </ul>
+                </div>
+              </section>
+
+              <section id="endpoints">
+                <h2>Endpoints</h2>
+
+                <div id="upload-images">
+                  <h3>/upload-images</h3>
+                  <p>
+                    <strong>Method:</strong> POST
+                  </p>
+                  <p>
+                    <strong>Description:</strong> Endpoint to handle image uploads. Receives image files, processes them to extract equipment information, and returns the results.
+                  </p>
+                  <p>
+                    <strong>Returns:</strong> JSON: A JSON response containing equipment information or an error message.
+                  </p>
+                </div>
+
+                <div id="get-equipment-recommendations">
+                  <h3>/get-equipment-recommendations</h3>
+                  <p>
+                    <strong>Method:</strong> POST
+                  </p>
+                  <p>
+                    <strong>Description:</strong> Endpoint to generate additional equipment recommendations. Receives a list of current equipment, generates recommendations using an external API, and returns the results.
+                  </p>
+                  <p>
+                    <strong>Returns:</strong> JSON: A JSON response containing additional equipment recommendations or an error message.
+                  </p>
+                </div>
+              </section>
+
+              <section id="entry-point">
+                <h2>Entry Point</h2>
+                <p>
+                  <strong>Function:</strong> `__main__`
+                </p>
+                <p>
+                  <strong>Description:</strong> Entry point for running the Flask application. The application runs in debug mode for development purposes.
+                </p>
+              </section>
+            </section>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="footer">
+      &#169;2024, Jon Paino. | Powered by Sphinx &amp; Alabaster.
+    </div>
+  </body>
+</html>
