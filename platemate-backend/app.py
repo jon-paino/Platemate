@@ -14,6 +14,8 @@ app = Flask(__name__)
 cors = CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
 
 app.config.from_object('config.Config')
+app.config['TESTING'] = True
+app.config['DEBUG'] = False
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
 
