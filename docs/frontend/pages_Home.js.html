@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: pages/Home.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: pages/Home.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import React from "react";
+import { useState } from "react";
+import { Card, Typography, Button, Upload, Row, Col } from "antd";
+import { UploadOutlined, ArrowRightOutlined } from "@ant-design/icons";
+import { Link } from "react-router-dom";
+import { message } from "antd";
+import { supabase, saveToSupabase } from "../services/supabase";
+import { useNavigate } from "react-router-dom"; // Import the hook
+
+const { Title, Text } = Typography;
+
+/**
+ * Home Component
+ * Renders the home page where users can upload equipment images, view recommendations, and access their profile.
+ * 
+ * @component
+ */
+function Home() {
+  const navigate = useNavigate(); // Initialize the navigation hook
+  const [uploadedFiles, setUploadedFiles] = useState([]); // State to store uploaded files
+
+  /**
+   * Handles file selection when a user chooses files to upload.
+   * Filters out non-image files and updates the state with valid images.
+   * 
+   * @function
+   * @param {Object} event - The event triggered by file input change.
+   */
+  const handleFileSelection = (event) => {
+    const files = Array.from(event.target.files);
+
+    if (files.some(file => !file.type.startsWith("image/"))) {
+      message.error("Only image files are allowed.");
+      return;
+    }
+
+    setUploadedFiles((prevFiles) => [...prevFiles, ...files]);
+    message.success(`${files.length} file(s) selected.`);
+  };
+
+  /**
+   * Handles the action of suggesting workouts based on uploaded images.
+   * Sends the images to the backend for processing and saves the results to Supabase.
+   * 
+   * @async
+   * @function
+   * @returns {Promise&lt;void>}
+   */
+  const handleSuggestWorkouts = async () => {
+    if (uploadedFiles.length === 0) {
+      message.error("No images selected. Please upload at least one image.");
+      return;
+    }
+
+    message.loading({ content: "Processing images...", key: "uploadIndicator" });
+
+    try {
+      // Retrieve the JWT token
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+
+      // Prepare FormData with all selected files
+      const formData = new FormData();
+      uploadedFiles.forEach((file, index) => {
+        formData.append(`image_${index}`, file);
+      });
+
+      // Send request to backend
+      const response = await fetch("http://127.0.0.1:5000/upload-images", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Server error ${response.status}`);
+      }
+
+      const data = await response.json();
+      message.success({ content: "Workouts suggested successfully!", key: "uploadIndicator", duration: 2 });
+
+      console.log("Response from backend:", data);
+
+      // Save to Supabase
+      try {
+        await saveToSupabase(data.equipment_details, data.workouts);
+        alert("Equipment and workouts saved to Supabase!");
+        navigate("/recommendations");
+      } catch (error) {
+        console.error("Error saving data to Supabase:", error);
+        alert("Error saving data to Supabase. Please try again later.");
+      }
+    } catch (error) {
+      console.error("Error during backend communication:", error);
+      message.error({ content: "Error processing images.", key: "uploadIndicator", duration: 2 });
+    }
+  };
+
+  return (
+    &lt;div style={{ padding: "20px", maxWidth: "1200px", margin: "0 auto", paddingBottom: "200px" }}>
+      {/* Welcome Card */}
+      &lt;Card style={{ marginBottom: "20px", textAlign: "center" }}>
+        &lt;Title level={1}>Welcome to Platemate&lt;/Title>
+        &lt;Text>
+          Your ultimate fitness companion for personalized workout plans and equipment recommendations.
+        &lt;/Text>
+      &lt;/Card>
+
+      &lt;div style={{ paddingBottom: "50px" }}>
+        {/* Feature Cards */}
+        &lt;Row gutter={[16, 16]}>
+          &lt;Col xs={24} sm={12} lg={8}>
+            &lt;Card
+              hoverable
+              title="Upload Equipment Images"
+              actions={[
+                &lt;div key="upload">
+                  &lt;input
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleFileSelection}
+                    style={{ display: "none" }}
+                    id="upload-input"
+                  />
+                  &lt;Button icon={&lt;UploadOutlined />} onClick={() => document.getElementById("upload-input").click()}>
+                    Choose Images
+                  &lt;/Button>
+                &lt;/div>,
+                &lt;Button type="primary" icon={&lt;ArrowRightOutlined />} onClick={handleSuggestWorkouts}>
+                  Suggest Workouts
+                &lt;/Button>,
+              ]}
+            >
+              &lt;Text>
+                Upload images of your equipment. Once you're ready, click "Suggest Workouts" to process the images and receive personalized workout recommendations.
+              &lt;/Text>
+              &lt;br />
+              &lt;br />
+              {uploadedFiles.length > 0 &amp;&amp; (
+                &lt;Text>
+                  &lt;strong>Uploaded Files:&lt;/strong> {uploadedFiles.map((file) => file.name).join(", ")}
+                &lt;/Text>
+              )}
+            &lt;/Card>
+          &lt;/Col>
+
+          &lt;Col xs={24} sm={12} lg={8}>
+            &lt;Card
+              hoverable
+              title="View Workout Recommendations"
+              actions={[
+                &lt;Link to="/recommendations">
+                  &lt;Button icon={&lt;ArrowRightOutlined />}>View Workouts&lt;/Button>
+                &lt;/Link>,
+              ]}
+            >
+              &lt;Text>
+                Discover workouts tailored to your available equipment and fitness goals.
+              &lt;/Text>
+            &lt;/Card>
+          &lt;/Col>
+
+          &lt;Col xs={24} sm={12} lg={8}>
+            &lt;Card
+              hoverable
+              title="View Your Profile"
+              actions={[
+                &lt;Link to="/profile">
+                  &lt;Button type="default" icon={&lt;ArrowRightOutlined />}>
+                    Go to Profile
+                  &lt;/Button>
+                &lt;/Link>,
+              ]}
+            >
+              &lt;Text>
+                Manage your profile, track your workout history, and update your preferences.
+              &lt;/Text>
+            &lt;/Card>
+          &lt;/Col>
+        &lt;/Row>
+      &lt;/div>
+    &lt;/div>
+  );
+}
+
+export default Home;</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Global</h3><ul><li><a href="global.html#Home">Home</a></li><li><a href="global.html#Recommendations">Recommendations</a></li><li><a href="global.html#createSupabaseAccount">createSupabaseAccount</a></li><li><a href="global.html#deleteEquipment">deleteEquipment</a></li><li><a href="global.html#deleteWorkout">deleteWorkout</a></li><li><a href="global.html#fetchEquipment">fetchEquipment</a></li><li><a href="global.html#fetchEquipmentRecommendations">fetchEquipmentRecommendations</a></li><li><a href="global.html#fetchWorkouts">fetchWorkouts</a></li><li><a href="global.html#getUserSession">getUserSession</a></li><li><a href="global.html#loginSupabaseAccount">loginSupabaseAccount</a></li><li><a href="global.html#logoutSupabaseAccount">logoutSupabaseAccount</a></li><li><a href="global.html#saveToSupabase">saveToSupabase</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Tue Dec 03 2024 14:16:09 GMT-0800 (Pacific Standard Time)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

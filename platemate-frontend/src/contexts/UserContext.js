@@ -11,6 +11,7 @@ const UserContext = createContext();
 export const UserProvider = ({ children }) => {
   const [loggedIn, setLoggedIn] = useState(false);
   const [email, setEmail] = useState("");
+  const [userId, setUserId] = useState("");
   const [userMetadata, setUserMetadata] = useState({});
   const [isStateLoading, setIsStateLoading] = useState(true); // New loading state
 
@@ -23,10 +24,12 @@ export const UserProvider = ({ children }) => {
         console.log("HERE")
       setLoggedIn(true);
       setEmail(session.user.email);
+      setUserId(session.user.id);
       setUserMetadata(session.user.user_metadata ?? {});
     } else {
       setLoggedIn(false);
       setEmail("");
+      setUserId("");
       setUserMetadata({});
     }
     console.log(session);
@@ -39,8 +42,8 @@ export const UserProvider = ({ children }) => {
     updateStateFromSupabase();
   }, []);
 
-  async function createAccount(email, password, metadata = {}) {
-    const resp = await createSupabaseAccount(email, password);
+  async function createAccount(name, email, password) {
+    const resp = await createSupabaseAccount(name, email, password);
     if (resp === "Success") await login(email, password);
     return resp;
   }
@@ -63,6 +66,7 @@ export const UserProvider = ({ children }) => {
     loggedIn,
     email,
     userMetadata,
+    userId,
     createAccount,
     login,
     logout,
