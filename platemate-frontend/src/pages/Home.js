@@ -124,6 +124,7 @@ function Home() {
                     onChange={handleFileSelection}
                     style={{ display: "none" }}
                     id="upload-input"
+                    data-testid="upload-input"
                   />
                   <Button icon={<UploadOutlined />} onClick={() => document.getElementById("upload-input").click()}>
                     Choose Images
