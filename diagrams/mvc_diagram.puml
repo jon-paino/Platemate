@@ -1,0 +1,62 @@
+@startuml
+skinparam classAttributeIconSize 0
+
+package "User Interface (React)" {
+    class UserInterface {
+        + render(): JSX.Element
+        + handleUserInput(): void
+    }
+
+    class ReactContext {
+        + useContext(): object
+    }
+}
+
+package "Business Logic (Controller)" {
+    class UserController {
+        + login(email: string, password: string): Promise<void>
+        + register(name: string, email: string, password: string): Promise<void>
+        + logout(): void
+        + fetchWorkouts(): object
+        + fetchEquipment(): object
+    }
+
+    class EquipmentController {
+        + fetchEquipmentRecommendations(): object
+        + handleSuggestWorkouts(): void
+    }
+}
+
+package "Data Management (Model)" {
+    class User {
+        - id: string
+        - name: string
+        - email: string
+        - equipment: object
+        - workouts: object
+    }
+
+    class Equipment {
+        - id: string
+        - userId: string
+        - equipmentName: string
+        - equipmentDescription: string
+    }
+
+    class Workouts {
+        - id: string
+        - userId: string
+        - workoutName: string
+        - workoutDescription: string
+        - musclesUsed: object[]
+        - equipmentNeeded: object[]
+    }
+}
+
+UserInterface -- ReactContext : uses
+ReactContext ..> UserController : dispatches actions
+UserController ..> User : interacts with
+UserController ..> Equipment : interacts with
+EquipmentController ..> Equipment : interacts with
+EquipmentController ..> Workouts: interacts with
+EquipmentController --> User : reads data
